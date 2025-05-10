@@ -1,4 +1,3 @@
-// Login Worker PHP (login_worker.php)
 <?php
 // Include database connection here
 include('db_connection.php');
