@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Use prepared statement to prevent SQL injection
-    $stmt = $conn->prepare("SELECT id, full_name, email, password FROM workers WHERE email = ? AND password = ?");
+    $stmt = $conn->prepare("SELECT id, full_name, email, password, phone, address FROM workers WHERE email = ? AND password = ?");
     
     if ($stmt) {
         $stmt->bind_param("ss", $email, $password);  // Bind email and password parameters
@@ -26,9 +26,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Fetch the worker details
             $worker = $result->fetch_assoc();
 
-            // Convert 'id' to string if necessary
-            $worker['id'] = (string) $worker['id'];  // Ensure it's returned as a string
-            
+            // Convert the 'id' field to a string to avoid type mismatch issues
+            $worker['id'] = (string)$worker['id'];
+
+            // Ensure all fields are non-null by providing default values
+            $worker['full_name'] = $worker['full_name'] ?? '';
+            $worker['email'] = $worker['email'] ?? '';
+            $worker['password'] = $worker['password'] ?? ''; // Avoid exposing the password in production
+            $worker['phone'] = $worker['phone'] ?? '';
+            $worker['address'] = $worker['address'] ?? '';
+
             echo json_encode(["status" => "success", "message" => "Login successful", "worker" => $worker]);
         } else {
             echo json_encode(["status" => "error", "message" => "Invalid email or password"]);
